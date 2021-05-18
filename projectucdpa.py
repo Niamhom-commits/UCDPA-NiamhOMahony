@@ -13,4 +13,7 @@ chardf1=charxls.parse('Public Register', skiprows=1)
 chardf2=charxls.parse('Annual Reports', skiprows=1)
 print(chardf1.head())
 print(chardf2.head()) 
+filebenefacts="C:\\Users\\omaho\\downloads\\CHARITIES20210507130928csv.csv"
+bfdf = pd.read_csv(filebenefacts)
+print(bfdf.head())
                      
