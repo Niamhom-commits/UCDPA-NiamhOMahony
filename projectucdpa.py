@@ -39,10 +39,21 @@ dictreplace={'County':'Not given', 'Registered Address': 'Not given', ' CRO':'No
 final_df=bfacts_df.fillna(dictreplace)
 print(final_df.isnull().sum())
 # Import Charity regulator excel sheets as 2 dataframes
-#file = "C:\\Users\\omaho\\downloads\\public-register-03052021.xlsx"
-#char_xls=pd.ExcelFile(file)
-#print(char_xls.sheet_names)
-#char_df1=char_xls.parse('Public Register', skiprows=1)
-#char_df2=char_xls.parse('Annual Reports', skiprows=1)
-#print(char_df1.head())
-#print(char_df2.head()) 
+file = "C:\\Users\\omaho\\downloads\\public-register-03052021.xlsx"
+char_xls=pd.ExcelFile(file)
+print(char_xls.sheet_names)
+char_df1=char_xls.parse('Public Register', skiprows=1)
+char_df2=char_xls.parse('Annual Reports', skiprows=1)
+print(char_df1.head())
+print(char_df2.head()) 
+# Clean char_df2
+char_df2.drop_duplicates(inplace=True)
+# set index for char_df2
+char_df2ind=char_df2.set_index('Period End Date')
+# drop blank columns
+char_df2ind.dropna(axis=1, thresh=10000, inplace=True)
+print(char_df2ind.columns)
+# Get the latest Period for income form Char_dfind
+finalchar_df=char_df2ind.loc['2019-01-01':'2019-12-31']
+print(finalchar_df.head())
+
