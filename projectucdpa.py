@@ -69,3 +69,8 @@ print(finalchar_df.head())
 merged_df = final2_df.merge(finalchar_df, how='right', left_on='CRA', right_on='Registered Charity Number', suffixes=('_ben', '_cr'))
 
 print(merged_df.head())
+
+
+
+merged_df.groupby('County') ['Subsector Name'].value_counts()
+ 
