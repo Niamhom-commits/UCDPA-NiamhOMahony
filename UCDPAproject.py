@@ -6,6 +6,7 @@ Spyder Editor
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Import charity regulators data in xl
 
@@ -57,51 +58,66 @@ ar19ind_df=ar19ind_df.set_index('Registered Charity Name')
 creg_df=prind_df.merge(ar19ind_df, how = 'right', left_index=True, right_index=True)
 
 
-# take county data from Benefatcts csv
+# Collect extra data from Benefatcts csv
 
 filebenefacts = "C:\\Users\\omaho\\downloads\\CHARITIES20210507130928csv.csv"
 bf_df = pd.read_csv(filebenefacts)
 
 
-# Create new df with required columns
+# Create new df with useful columns
 bfnew_df=bf_df[['Subsector Name', 'County','CRA']].copy()
 
 # Clean this df
+# check for nulls
 bfnew_df.isnull().sum()
-# bfnew_df=bf_df[['Subsector Name', 'County','CRA']].copy()
+# replace nulls with appropriate values using Dictionary
 bfdict = {'Subsector Name': 'Not available', 'County':'Not known'}
 bfnew_df=bfnew_df.fillna(bfdict)
 # Delete columns with no CRA 
 bfnew_df=bfnew_df.dropna()
 
-# CRA type needs to be float
+# Remove str in some CRA 
 bfnew_df=bfnew_df[bfnew_df['CRA'].str.contains('Deregistered') == False]
+# Convert CRA to float
 bfnew_df['CRA']=bfnew_df['CRA'].astype(float)
+#Rename some columns for easier manipulation
 creg_df=creg_df.rename(columns={'Registered Charity Number_x' : 'RCN'})
 
-#Merge benefacts data into charity register
+#Merge cleaned Benefacts data into charity register
 
 ch_df=creg_df.merge(bfnew_df, how="inner", left_on="RCN",right_on="CRA")
 
 
-# start plotting
+# start investigating data
 
+# How many charities in each county
+ch_df.groupby('County')
+
+# How many charities in each subsector
 ch_df.groupby('County') ['Subsector Name'].value_counts()
+
+# How many charities have CHY number and are registered as company
+ch2_df=ch_df[(ch_df['CHY Number'] != 'Not Registered') & (ch_df['CRO Number'] != 'Not Registered')]
+
+
+
+
+
 
          
          
          
          
 ch_df['County'].value_counts().plot.bar()
-
+plt.clf()
 ch_df['Subsector Name'].value_counts().plot.bar()
-
+plt.clf()
 plt.scatter(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], s=5)
-
+plt.clf()
 
 ch_df.groupby('Subsector Name')['Financial: Gross Income'].max().plot(kind='barh')
 
-
+plt.clf()
 
 #top 10 subsector analysis
 
