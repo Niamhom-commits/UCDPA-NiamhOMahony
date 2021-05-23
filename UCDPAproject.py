@@ -84,4 +84,33 @@ creg_df=creg_df.rename(columns={'Registered Charity Number_x' : 'RCN'})
 ch_df=creg_df.merge(bfnew_df, how="inner", left_on="RCN",right_on="CRA")
 
 
+# start plotting
+
+ch_df.groupby('County') ['Subsector Name'].value_counts()
+
+         
+         
+         
+         
+ch_df['County'].value_counts().plot.bar()
+
+ch_df['Subsector Name'].value_counts().plot.bar()
+
+plt.scatter(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], s=5)
+
+
+ch_df.groupby('Subsector Name')['Financial: Gross Income'].max().plot(kind='barh')
+
+
+
+#top 10 subsector analysis
+
+frequency_df=ch_df['Subsector Name'].value_counts()
+frequency_list=frequency_df.index.tolist()
+top10_list=frequency_list[0:10]
+btm10_list=frequency_list[-10:]
+top10_bool=ch_df['Subsector Name'].isin(top10_list)
+top10_df=ch_df[top10_bool]
+top10_df['Subsector Name'].value_counts().plot.bar()
+plt.show()
 
