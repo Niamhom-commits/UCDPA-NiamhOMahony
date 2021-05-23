@@ -84,4 +84,4 @@ creg_df=creg_df.rename(columns={'Registered Charity Number_x' : 'RCN'})
 ch_df=creg_df.merge(bfnew_df, how="inner", left_on="RCN",right_on="CRA")
 
 
-ch_df
+
