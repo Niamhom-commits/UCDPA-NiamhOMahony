@@ -135,5 +135,8 @@ top50_df['Subsector Name'].value_counts().plot.bar()
 
 count_df=ch_df[ch_df['Financial: Gross Income'] < 2111977]
 
-dub_df['Financial: Gross Income'].cumsum().iloc[-1]
+# dub_df['Financial: Gross Income'].cumsum().iloc[-1]
 
+# ch_df['Financial: Gross Profit']=ch_df['Financial: Gross Income'] - ch_df['Financial: Gross Expenditure']
+
+ch_df['Profit'] = ch_df['Financial: Gross Income'] - ch_df['Financial: Gross Expenditure']
