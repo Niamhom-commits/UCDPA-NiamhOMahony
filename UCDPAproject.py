@@ -130,3 +130,10 @@ top10_df=ch_df[top10_bool]
 top10_df['Subsector Name'].value_counts().plot.bar()
 plt.show()
 
+top50_df=ch_df.sort_values('Financial: Gross Income', ascending=False).iloc[0:20,:]
+top50_df['Subsector Name'].value_counts().plot.bar()
+
+count_df=ch_df[ch_df['Financial: Gross Income'] < 2111977]
+
+dub_df['Financial: Gross Income'].cumsum().iloc[-1]
+
