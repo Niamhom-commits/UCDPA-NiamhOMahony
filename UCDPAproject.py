@@ -22,7 +22,13 @@ ar_df = charity_df.parse('Annual Reports', skiprows=1)
 print(pr_df.head())
 print(ar_df.head()) 
 
-# Set indexes to Registered Charity Number in both
+# look at columns and incices in both dataframes
+print(pr_df.columns)
+print(ar_df.columns)
+print(pr_df.index)
+print(ar_df.index) 
+
+# Set indexes to Registered Charity Number and Period End date 
 prind_df=pr_df.set_index('Registered Charity Name')
 arind_df=ar_df.set_index('Period End Date')
 
@@ -44,14 +50,20 @@ print(arind_df.shape)
 arind_df=arind_df[arind_df['Financial: Gross Income'].notna()]
 arind_df=arind_df[arind_df['Financial: Gross Expenditure'].notna()]
 
-# select report dates in 2019 only
+# In ar select report dates in 2019 only
 
 ar19ind_df=arind_df.loc['2019-01-01':'2019-12-31']
 print(ar19ind_df.head())
 print(ar19ind_df.shape)
 
 # Change index of Annual Report df to Registered Charity Name
+
 ar19ind_df=ar19ind_df.set_index('Registered Charity Name')
+
+# Tidy up column names and delete unneccessary columns
+
+prind_df.drop(['Also Known As', 'Primary Address', 'Country Established', 'Charitable Purpose', 'Charitable Objects'], axis=1, inplace=True)
+ar19ind_df.drop(['Report Size', 'Period Start Date', 'Report Activity', 'Activity Description', 'Beneficiaries'], axis=1, inplace=True)
 
 # Merge 2 dataframes
 
@@ -68,16 +80,24 @@ bf_df = pd.read_csv(filebenefacts)
 bfnew_df=bf_df[['Subsector Name', 'County','CRA']].copy()
 
 # Clean this df
+
 # check for nulls
 bfnew_df.isnull().sum()
+
 # replace nulls with appropriate values using Dictionary
 bfdict = {'Subsector Name': 'Not available', 'County':'Not known'}
 bfnew_df=bfnew_df.fillna(bfdict)
-# Delete columns with no CRA 
+
+# Delete columns with no CRA (Charity Regulator No)
 bfnew_df=bfnew_df.dropna()
 
-# Remove str in some CRA 
+#Check datatypes for bfnew_df
+print(bfnew_df.dtypes)
+
+# Remove date with str as part of CRA which would cause a problem
+ 
 bfnew_df=bfnew_df[bfnew_df['CRA'].str.contains('Deregistered') == False]
+
 # Convert CRA to float
 bfnew_df['CRA']=bfnew_df['CRA'].astype(float)
 #Rename some columns for easier manipulation
@@ -101,10 +121,11 @@ ch2_df=ch_df[(ch_df['CHY Number'] != 'Not Registered') & (ch_df['CRO Number'] !=
 
 
 
+# ar19ind_df.drop(['Report Size', 'Period Start Date', 'Report Activity', 'Activity Description', 'Beneficiaries'], axis=1, inplace=True)
 
 
-
-         
+ch_df['Governing Form'].value_counts().plot.bar()
+        
          
          
          
