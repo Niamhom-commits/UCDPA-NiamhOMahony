@@ -26,9 +26,20 @@ print(ar_df.head())
 print(pr_df.columns)
 print(ar_df.columns)
 print(pr_df.index)
-print(ar_df.index) 
+print(ar_df.index)
 
-# Set indexes to Registered Charity Number and Period End date 
+# AR(Annual Reports) Check median and mean for Gross Income w Numpy
+income = ar_df['Financial: Gross Income']
+np_income= np.array(income)
+income_mean = np.nanmean(np_income)
+income_median = np.nanmedian(np_income)
+
+print(income_mean) 
+print(income_median)                    
+
+
+# Set indexes to Registered Charity Number for pr_df
+# and Period End date for ar_df
 prind_df=pr_df.set_index('Registered Charity Name')
 arind_df=ar_df.set_index('Period End Date')
 
@@ -37,12 +48,13 @@ prind_df.isnull().sum()
 arind_df.isnull().sum()
 
 
-# Clean prind_df
+# Clean prind_df:
+# replace nulls with Dictionary replacements
 dictpr = {'Primary Address': 'Not given', 'CRO Number':'Not Registered', 'CHY Number': 'Not Registered', 'Charitable Purpose': 'Not given', 'Charitable Objects': 'Not given'} 
 prind_df=prind_df.fillna(dictpr)
 
-# Clean arind df
-# AR get rid of the empty columns
+# Clean arind_df:
+# AR get rid of the empty columns where threshold is breached
 arind_df=arind_df.dropna(axis =1, thresh = 10000)
 print(arind_df.shape)
 
@@ -50,13 +62,13 @@ print(arind_df.shape)
 arind_df=arind_df[arind_df['Financial: Gross Income'].notna()]
 arind_df=arind_df[arind_df['Financial: Gross Expenditure'].notna()]
 
-# In ar select report dates in 2019 only
+# In arind_df select report dates in 2019 only
 
 ar19ind_df=arind_df.loc['2019-01-01':'2019-12-31']
 print(ar19ind_df.head())
 print(ar19ind_df.shape)
 
-# Change index of Annual Report df to Registered Charity Name
+# Change index of ar19ind_df to 'Registered Charity Name' to allow merge
 
 ar19ind_df=ar19ind_df.set_index('Registered Charity Name')
 
@@ -65,7 +77,7 @@ ar19ind_df=ar19ind_df.set_index('Registered Charity Name')
 prind_df.drop(['Also Known As', 'Primary Address', 'Country Established', 'Charitable Purpose', 'Charitable Objects'], axis=1, inplace=True)
 ar19ind_df.drop(['Report Size', 'Period Start Date', 'Report Activity', 'Activity Description', 'Beneficiaries'], axis=1, inplace=True)
 
-# Merge 2 dataframes
+# Merge these 2 dataframes: right join on index
 
 creg_df=prind_df.merge(ar19ind_df, how = 'right', left_index=True, right_index=True)
 
@@ -76,11 +88,10 @@ filebenefacts = "C:\\Users\\omaho\\downloads\\CHARITIES20210507130928csv.csv"
 bf_df = pd.read_csv(filebenefacts)
 
 
-# Create new df with useful columns
+# Create new df from csv with useful columns
 bfnew_df=bf_df[['Subsector Name', 'County','CRA']].copy()
 
 # Clean this df
-
 # check for nulls
 bfnew_df.isnull().sum()
 
@@ -94,7 +105,8 @@ bfnew_df=bfnew_df.dropna()
 #Check datatypes for bfnew_df
 print(bfnew_df.dtypes)
 
-# Remove date with str as part of CRA which would cause a problem
+# CRA needs to be converted to a float
+# Remove data with str as part of CRA which would cause a problem
  
 bfnew_df=bfnew_df[bfnew_df['CRA'].str.contains('Deregistered') == False]
 
@@ -110,35 +122,38 @@ creg_df=creg_df.rename(columns={'Registered Charity Number_x' : 'RCN'})
 
 
 
-#Merge cleaned Benefacts data into charity register
+#Merge cleaned Benefacts data into charity register =inner join
 
 ch_df=creg_df.merge(bfind_df, how="inner", left_on="RCN",right_index=True)
 
 #Create new column - net surplus or deficit
-ch_df['SurpDef'] = ch_df['Financial: Gross Income'] - ch_df['Financial: Gross Expenditure']
+# ch_df['SurpDef'] = ch_df['Financial: Gross Income'] - ch_df['Financial: Gross Expenditure']
 
 # Use for and if loop to determine if deficit or surplus in 2019 add new column
 
-result = []
-for value in ch_df['SurpDef']:
-    if value >= 0:
-        result.append("Surplus")
-    else:
-        result.append("Deficit")
+# result = []
+# for value in ch_df['SurpDef']:
+#    if value >= 0:
+#       result.append("Surplus")
+#   else:
+#      result.append("Deficit")
        
-ch_df["Result"]=result
+# ch_df["Result"]=result
+#
+
+# Insert a new column in ch_df which confirms if the charity has a CHY number or not
 
 for lab, row in ch_df.iterrows():
        if "registered" in str(row['CHY Number']).lower():
            ch_df.loc[lab, 'CHY'] = "No"
        else:
            ch_df.loc[lab, 'CHY'] = "Yes"
-        
+ 
 
 # start investigating data
 
-# How many charities in each county
-ch_df.groupby('County')
+# How many charities have a CHY number?
+print(ch_df[ch_df['CHY'] == 'YES'].value_counts())
 
 # How many charities in each subsector
 ch_df.groupby('County') ['Subsector Name'].value_counts()
@@ -204,7 +219,7 @@ plt.clf()
 plt.close()
 
 
-
+sns.scatterplot(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], hue=ch_df['CHY'], s=30)
 
 # plt.clf()
 ch_df['Subsector Name'].value_counts().plot.bar()
@@ -242,6 +257,10 @@ sns.scatterplot(data=ch_df, x='Financial: Gross Income', y='Financial: Gross Exp
 plt.clf()
 plt.close()
 # sns.countplot(data=ch_df, x='County')
+
+sns.barplot(data=top50_df, x= 'County', y='Financial: Gross Income')
+sns.barplot(data=top50_df, x= 'Governing Form', y='Financial: Gross Income')
+
 
 ax = sns.countplot(x="County", data=ch_df)
 
