@@ -128,8 +128,11 @@ for value in ch_df['SurpDef']:
        
 ch_df["Result"]=result
 
-for index, row in ch_df.iterrows():
-       print(str(row['Result']))
+for lab, row in ch_df.iterrows():
+       if "registered" in str(row['CHY Number']).lower():
+           ch_df.loc[lab, 'CHY'] = "No"
+       else:
+           ch_df.loc[lab, 'CHY'] = "Yes"
         
 
 # start investigating data
@@ -172,7 +175,8 @@ plt.clf()
 plt.close()
 
 # Scatter plt finances
-sns.scatterplot(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'])
+sns.scatterplot(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], hue=ch_df['CHY']
+, s =15)
 
 #plt.clf()
 #plt.close()
@@ -183,7 +187,8 @@ top50_df['Subsector Name'].value_counts().plot.bar()
 
 plt.clf()
 plt.close()
-
+# governing form mean income
+sns.barplot(data=ch_df, x='Governing Form', y='Financial: Gross Income')
 
 
 
