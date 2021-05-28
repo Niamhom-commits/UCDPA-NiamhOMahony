@@ -100,13 +100,37 @@ bfnew_df=bfnew_df[bfnew_df['CRA'].str.contains('Deregistered') == False]
 
 # Convert CRA to float
 bfnew_df['CRA']=bfnew_df['CRA'].astype(float)
-#Rename some columns for easier manipulation
+
+# set bf index to CRA
+bfind_df=bfnew_df.set_index('CRA')
+
+
+#Rename creg columns for easier manipulation
 creg_df=creg_df.rename(columns={'Registered Charity Number_x' : 'RCN'})
+
+
 
 #Merge cleaned Benefacts data into charity register
 
-ch_df=creg_df.merge(bfnew_df, how="inner", left_on="RCN",right_on="CRA")
+ch_df=creg_df.merge(bfind_df, how="inner", left_on="RCN",right_index=True)
 
+#Create new column - net surplus or deficit
+ch_df['SurpDef'] = ch_df['Financial: Gross Income'] - ch_df['Financial: Gross Expenditure']
+
+# Use for and if loop to determine if deficit or surplus in 2019 add new column
+
+result = []
+for value in ch_df['SurpDef']:
+    if value >= 0:
+        result.append("Surplus")
+    else:
+        result.append("Deficit")
+       
+ch_df["Result"]=result
+
+for index, row in ch_df.iterrows():
+       print(str(row['Result']))
+        
 
 # start investigating data
 
@@ -160,4 +184,3 @@ count_df=ch_df[ch_df['Financial: Gross Income'] < 2111977]
 
 # ch_df['Financial: Gross Profit']=ch_df['Financial: Gross Income'] - ch_df['Financial: Gross Expenditure']
 
-ch_df['Profit'] = ch_df['Financial: Gross Income'] - ch_df['Financial: Gross Expenditure']
