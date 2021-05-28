@@ -155,8 +155,53 @@ ch_df['Governing Form'].value_counts().plot.bar()
          
          
          
-ch_df['County'].value_counts().plot.bar()
+# ch_df['County'].value_counts().plot.bar()
+# first visualistaion - County by Number of registered charities
+ax = sns.countplot(x="County", data=ch_df)
+ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha="right")
+plt.tight_layout()
+plt.show()
 plt.clf()
+plt.close()
+# Subsector  numbers
+ax= sns.countplot(x='Subsector Name', data=ch_df)
+ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha="right")
+plt.tight_layout()
+plt.show()
+plt.clf()
+plt.close()
+
+# Scatter plt finances
+sns.scatterplot(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'])
+
+#plt.clf()
+#plt.close()
+
+
+top50_df=ch_df.sort_values('Financial: Gross Income', ascending=False).iloc[0:50,:]
+top50_df['Subsector Name'].value_counts().plot.bar()
+
+plt.clf()
+plt.close()
+
+
+
+
+frequency_df=ch_df['Subsector Name'].value_counts()
+frequency_list=frequency_df.index.tolist()
+top10_list=frequency_list[0:10]
+btm10_list=frequency_list[-10:]
+top10_bool=ch_df['Subsector Name'].isin(top10_list)
+top10_df=ch_df[top10_bool]
+top10_df['Subsector Name'].value_counts().plot.bar()
+plt.show()
+plt.clf()
+plt.close()
+
+
+
+
+# plt.clf()
 ch_df['Subsector Name'].value_counts().plot.bar()
 plt.clf()
 plt.scatter(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], s=5)
@@ -165,7 +210,7 @@ plt.clf()
 ch_df.groupby('Subsector Name')['Financial: Gross Income'].max().plot(kind='barh')
 
 plt.clf()
-
+plt.close()
 #top 10 subsector analysis
 
 frequency_df=ch_df['Subsector Name'].value_counts()
@@ -176,6 +221,8 @@ top10_bool=ch_df['Subsector Name'].isin(top10_list)
 top10_df=ch_df[top10_bool]
 top10_df['Subsector Name'].value_counts().plot.bar()
 plt.show()
+plt.clf()
+plt.close()
 
 top50_df=ch_df.sort_values('Financial: Gross Income', ascending=False).iloc[0:50,:]
 top50_df['Subsector Name'].value_counts().plot.bar()
@@ -187,4 +234,22 @@ count_df=ch_df[ch_df['Financial: Gross Income'] < 2111977]
 # ch_df['Financial: Gross Profit']=ch_df['Financial: Gross Income'] - ch_df['Financial: Gross Expenditure']
 
 sns.scatterplot(data=ch_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', hue='SurpDef')
+plt.clf()
+plt.close()
+# sns.countplot(data=ch_df, x='County')
 
+ax = sns.countplot(x="County", data=ch_df)
+
+ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha="right")
+plt.tight_layout()
+plt.show()
+plt.clf()
+plt.close()
+plt.figure(figsize=(15,10)) #adjust the size of plot
+
+
+
+ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha="right")  #it will rotate text on x axis
+
+plt.tight_layout()
+plt.show()
