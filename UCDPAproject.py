@@ -143,6 +143,8 @@ ch_df.groupby('County') ['Subsector Name'].value_counts()
 # How many charities have CHY number and are registered as company
 ch2_df=ch_df[(ch_df['CHY Number'] != 'Not Registered') & (ch_df['CRO Number'] != 'Not Registered')]
 
+ch_df.groupby('County')['Financial: Gross Income'].mean().plot.bar()
+
 
 
 # ar19ind_df.drop(['Report Size', 'Period Start Date', 'Report Activity', 'Activity Description', 'Beneficiaries'], axis=1, inplace=True)
@@ -175,7 +177,7 @@ top10_df=ch_df[top10_bool]
 top10_df['Subsector Name'].value_counts().plot.bar()
 plt.show()
 
-top50_df=ch_df.sort_values('Financial: Gross Income', ascending=False).iloc[0:20,:]
+top50_df=ch_df.sort_values('Financial: Gross Income', ascending=False).iloc[0:50,:]
 top50_df['Subsector Name'].value_counts().plot.bar()
 
 count_df=ch_df[ch_df['Financial: Gross Income'] < 2111977]
@@ -183,4 +185,6 @@ count_df=ch_df[ch_df['Financial: Gross Income'] < 2111977]
 # dub_df['Financial: Gross Income'].cumsum().iloc[-1]
 
 # ch_df['Financial: Gross Profit']=ch_df['Financial: Gross Income'] - ch_df['Financial: Gross Expenditure']
+
+sns.scatterplot(data=ch_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', hue='SurpDef')
 
