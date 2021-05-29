@@ -153,37 +153,40 @@ for lab, row in ch_df.iterrows():
 # start investigating data
 
 # How many charities have a CHY number?
-print(ch_df[ch_df['CHY'] == 'YES'].value_counts())
+# print(ch_df[ch_df['CHY'] == 'YES'].value_counts())
 
 # How many charities in each subsector
-ch_df.groupby('County') ['Subsector Name'].value_counts()
+# ch_df.groupby('County') ['Subsector Name'].value_counts()
 
 # How many charities have CHY number and are registered as company
-ch2_df=ch_df[(ch_df['CHY Number'] != 'Not Registered') & (ch_df['CRO Number'] != 'Not Registered')]
+#ch2_df=ch_df[(ch_df['CHY Number'] != 'Not Registered') & (ch_df['CRO Number'] != 'Not Registered')]
 
-ch_df.groupby('County')['Financial: Gross Income'].mean().plot.bar()
+#ch_df.groupby('County')['Financial: Gross Income'].mean().plot.bar()
 
 
 
 # ar19ind_df.drop(['Report Size', 'Period Start Date', 'Report Activity', 'Activity Description', 'Beneficiaries'], axis=1, inplace=True)
 
 
-ch_df['Governing Form'].value_counts().plot.bar()
+# ch_df['Governing Form'].value_counts().plot.bar()
         
-         
+
          
          
 # ch_df['County'].value_counts().plot.bar()
 # first visualistaion - County by Number of registered charities
 ax = sns.countplot(x="County", data=ch_df)
-ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha="right")
+ax.set_xticklabels(ax.get_xticklabels(), rotation=90, ha="right")
+ax.set_title('Number of Registered Charities Per County')
+ax.set_ylabel('Number of Charities')
 plt.tight_layout()
 plt.show()
 plt.clf()
 plt.close()
-# Subsector  numbers
-ax= sns.countplot(x='Subsector Name', data=ch_df)
-ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha="right")
+# Govrening Forms  numbers
+ax= sns.countplot(x='Governing Form', data=ch_df)
+ax.set_xticklabels(ax.get_xticklabels(), rotation=90, ha="right")
+ax.set_title('Charity Governing Forms Ireland')
 plt.tight_layout()
 plt.show()
 plt.clf()
@@ -192,6 +195,27 @@ plt.close()
 # Scatter plt finances
 sns.scatterplot(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], hue=ch_df['CHY']
 , s =15)
+plt.show()
+plt.clf()
+plt.close()
+
+# For closer analysis divide charities into groups below and above median
+
+
+chmed=ch_df['Financial: Gross Income'].median()
+belowmedian_df=ch_df[ch_df['Financial: Gross Income'] <= chmed ]
+abovemedian_df=ch_df[ch_df['Financial: Gross Income'] > chmed]
+
+sns.scatterplot(data=abovemedian_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', hue='CHY')
+plt.show()  
+plt.clf()
+plt.close()                    
+sns.scatterplot(data=belowmedian_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', hue='CHY')
+plt.show()
+plt.clf()
+plt.close()
+
+
 
 #plt.clf()
 #plt.close()
