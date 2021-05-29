@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Import charity regulators data in xl
+# Import charity regulators data as an Excel 2 sheet spreadsheet
 
 file = "C:\\Users\\omaho\\downloads\\public-register-03052021.xlsx"
 charity_df = pd.ExcelFile(file)
@@ -28,7 +28,7 @@ print(ar_df.columns)
 print(pr_df.index)
 print(ar_df.index)
 
-# AR(Annual Reports) Check median and mean for Gross Income w Numpy
+# AR(Annual Reports) Check median and mean for Gross Income w Numpy allowing for Nan values
 income = ar_df['Financial: Gross Income']
 np_income= np.array(income)
 income_mean = np.nanmean(np_income)
@@ -44,7 +44,8 @@ prind_df=pr_df.set_index('Registered Charity Name')
 arind_df=ar_df.set_index('Period End Date')
 
 # check number of nulls
-prind_df.isnull().sum()
+
+prind.isnull().sum()
 arind_df.isnull().sum()
 
 
@@ -126,20 +127,6 @@ creg_df=creg_df.rename(columns={'Registered Charity Number_x' : 'RCN'})
 
 ch_df=creg_df.merge(bfind_df, how="inner", left_on="RCN",right_index=True)
 
-#Create new column - net surplus or deficit
-# ch_df['SurpDef'] = ch_df['Financial: Gross Income'] - ch_df['Financial: Gross Expenditure']
-
-# Use for and if loop to determine if deficit or surplus in 2019 add new column
-
-# result = []
-# for value in ch_df['SurpDef']:
-#    if value >= 0:
-#       result.append("Surplus")
-#   else:
-#      result.append("Deficit")
-       
-# ch_df["Result"]=result
-#
 
 # Insert a new column in ch_df which confirms if the charity has a CHY number or not
 
@@ -152,168 +139,126 @@ for lab, row in ch_df.iterrows():
 
 # start investigating data
 
-# How many charities have a CHY number?
-# print(ch_df[ch_df['CHY'] == 'YES'].value_counts())
-
-# How many charities in each subsector
-# ch_df.groupby('County') ['Subsector Name'].value_counts()
-
-# How many charities have CHY number and are registered as company
-#ch2_df=ch_df[(ch_df['CHY Number'] != 'Not Registered') & (ch_df['CRO Number'] != 'Not Registered')]
-
-#ch_df.groupby('County')['Financial: Gross Income'].mean().plot.bar()
-
-
-
-# ar19ind_df.drop(['Report Size', 'Period Start Date', 'Report Activity', 'Activity Description', 'Beneficiaries'], axis=1, inplace=True)
-
-
-# ch_df['Governing Form'].value_counts().plot.bar()
-        
-
-         
-         
-# ch_df['County'].value_counts().plot.bar()
 # first visualistaion - County by Number of registered charities
 ax = sns.countplot(x="County", data=ch_df)
-ax.set_xticklabels(ax.get_xticklabels(), rotation=90, ha="right")
+ax.set_xticklabels(ax.get_xticklabels(), rotation=75, ha="right")
 ax.set_title('Number of Registered Charities Per County')
 ax.set_ylabel('Number of Charities')
 plt.tight_layout()
 plt.show()
 plt.clf()
 plt.close()
-# Govrening Forms  numbers
+
+# Governing Forms numbers - second visualisation
 ax= sns.countplot(x='Governing Form', data=ch_df)
 ax.set_xticklabels(ax.get_xticklabels(), rotation=90, ha="right")
-ax.set_title('Charity Governing Forms Ireland')
+ax.set_title('Charity Governing Forms - Number in each category')
 plt.tight_layout()
+ax.set_ylabel('No of charities')
 plt.show()
 plt.clf()
 plt.close()
 
-# Scatter plt finances
-sns.scatterplot(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], hue=ch_df['CHY']
-, s =15, alpha=0.5)
+# governing form mean income
+sns.barplot(data=ch_df, x='Governing Form', y='Financial: Gross Income')
+plt.title('Governing Form - Average Gross Income')
+plt.ylabel('Gross Income €10m')
+plt.xticks(rotation=90)
 plt.show()
 plt.clf()
 plt.close()
 
-# For closer analysis divide charities into groups below and above median
 
+
+# Scatter plot to show relationship between Gross Income and Expenditure
+sns.scatterplot(data=ch_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', hue='CHY')
+, s =15)
+plt.title('Gross Income against Gross Expenditure')
+plt.xlabel('Gross Income €10m')
+plt.ylabel('Gross Expenditure €10m')
+plt.show()
+plt.clf()
+plt.close()
+
+# For closer analysis divide charities below and above median
 
 chmed=ch_df['Financial: Gross Income'].median()
 belowmedian_df=ch_df[ch_df['Financial: Gross Income'] <= chmed ]
 abovemedian_df=ch_df[ch_df['Financial: Gross Income'] > chmed]
 
 sns.scatterplot(data=abovemedian_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', hue='CHY')
+plt.title('Charity Income v Expenditure - Income above median')
+plt.legend()
+plt.ylabel('Gross Expenditure €10m')
+plt.xlabel('Gross Income €10m')
 plt.show()  
 plt.clf()
 plt.close()                    
 sns.scatterplot(data=belowmedian_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', hue='CHY')
+plt.title('Charity Income v Expenditure - Income below median')
+plt.xlabel('Gross Income €10m')
+plt.ylabel('Gross Expenditure €10m')
+plt.show()
+plt.clf()
+plt.close()
+
+
+# stripplot to look at distribution of gross income by county
+sns.stripplot(data=ch_df, x='County', y='Financial: Gross Income')
+plt.title('Gross Income per charity by County')
+plt.xticks(rotation=90)
+plt.ylabel('Gross Income €10m')
 plt.show()
 plt.clf()
 plt.close()
 
 
 
-#plt.clf()
-#plt.close()
+# histogram to show distribution of Income
+plt.hist(ch_df['Financial: Gross Income'])
+plt.title('Gross Income Distribution € - All Charities')
+plt.show()
+plt.clf()
+plt.close()
+
+# Not a clear view - skewed by large numbers. Look at smaller sample
+
+view_df=ch_df[ch_df['Financial: Gross Income'] < 1000000]
+plt.hist(view_df['Financial: Gross Income'])
+plt.title('Gross Income Distribution - Charities earning under €1m')
+plt.show()
+plt.clf()
+plt.close()
 
 
+
+
+# Top 50 charities sorted by subsector
 top50_df=ch_df.sort_values('Financial: Gross Income', ascending=False).iloc[0:50,:]
-top50_df['Subsector Name'].value_counts().plot.bar()
-
-
-
-
-
-
-plt.clf()
-plt.close()
-# governing form mean income
-sns.barplot(data=ch_df, x='Governing Form', y='Financial: Gross Income')
-
-
-
-frequency_df=ch_df['Subsector Name'].value_counts()
-frequency_list=frequency_df.index.tolist()
-top10_list=frequency_list[0:10]
-btm10_list=frequency_list[-10:]
-top10_bool=ch_df['Subsector Name'].isin(top10_list)
-top10_df=ch_df[top10_bool]
-top10_df['Subsector Name'].value_counts().plot.bar()
+sns.countplot(data=top50_df, x='Subsector Name')
+plt.xlabel('Subsector')
+plt.ylabel('No of charities')
+plt.xticks(rotation=90)
+plt.title('Top 50 charities by income sorted by Subsector')
 plt.show()
 plt.clf()
 plt.close()
 
 
-# sns.scatterplot(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], hue=ch_df['CHY'], s=30)
-
-# plt.clf()
-#ch_df['Subsector Name'].value_counts().plot.bar()
-#plt.clf()
-#plt.scatter(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], s=5)
-#plt.clf()
-
-#ch_df.groupby('Subsector Name')['Financial: Gross Income'].max().plot(kind='barh')
-
-plt.clf()
-plt.close()
-#top 10 subsector analysis
-
-frequency_df=ch_df['Subsector Name'].value_counts()
-frequency_list=frequency_df.index.tolist()
-top10_list=frequency_list[0:10]
-btm10_list=frequency_list[-10:]
-top10_bool=ch_df['Subsector Name'].isin(top10_list)
-top10_df=ch_df[top10_bool]
-#top10_df['Subsector Name'].value_counts().plot.bar()
-sns.countplot(data=top10_df, x='Subsector Name')
-plt.show()
-plt.clf()
-plt.close()
-btm10_bool=ch_df['Subsector Name'].isin(btm10_list)
-btm10_df=ch_df[btm10_bool]
-sns.countplot(data=btm10_df, x='Subsector Name')
-
-top50_df=ch_df.sort_values('Financial: Gross Income', ascending=False).iloc[0:50,:]
-top50_df['Subsector Name'].value_counts().plot.bar()
-
-count_df=ch_df[ch_df['Financial: Gross Income'] < 2111977]
-
-# dub_df['Financial: Gross Income'].cumsum().iloc[-1]
-
-# ch_df['Financial: Gross Profit']=ch_df['Financial: Gross Income'] - ch_df['Financial: Gross Expenditure']
-
-#sns.scatterplot(data=ch_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', hue='SurpDef')
-#p#lt.clf()
-#t.close()
-# sns.countplot(data=ch_df, x='County')
-
-sns.barplot(data=top50_df, x= 'County', y='Financial: Gross Income')
-sns.barplot(data=top50_df, x= 'Governing Form', y='Financial: Gross Income', rotation =90)
 
 
-ax = sns.countplot(x="County", data=ch_df)
-
-ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha="right")
-plt.tight_layout()
-plt.show()
-plt.clf()
-plt.close()
-plt.figure(figsize=(15,10)) #adjust the size of plot
-
-
-
-ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha="right")  #it will rotate text on x axis
-
-plt.tight_layout()
-plt.show()
-
+# Lineplot of Gross Income against Gross Expenditure showing confidence
 sns.lmplot(data=ch_df, x='Financial: Gross Income', y='Financial: Gross Expenditure')
+plt.title('Lineplot of Gross Income against Gross Expenditure showing confidence')
+plt.xlabel('Gross Income €10m')
+plt.ylabel('Gross Income €10m')
+plt.show()
+plt.clf()
+plt.close()
 
-plt.hist(top50_df['Financial: Gross Income'])
 
 
-sns.barplot(data=ch_df, y='Financial: Gross Income', x='Subsector Name', hue='County')
+
+
+
+
