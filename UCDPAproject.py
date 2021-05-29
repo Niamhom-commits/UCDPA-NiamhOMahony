@@ -194,7 +194,7 @@ plt.close()
 
 # Scatter plt finances
 sns.scatterplot(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], hue=ch_df['CHY']
-, s =15)
+, s =15, alpha=0.5)
 plt.show()
 plt.clf()
 plt.close()
@@ -224,6 +224,11 @@ plt.close()
 top50_df=ch_df.sort_values('Financial: Gross Income', ascending=False).iloc[0:50,:]
 top50_df['Subsector Name'].value_counts().plot.bar()
 
+
+
+
+
+
 plt.clf()
 plt.close()
 # governing form mean income
@@ -243,15 +248,15 @@ plt.clf()
 plt.close()
 
 
-sns.scatterplot(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], hue=ch_df['CHY'], s=30)
+# sns.scatterplot(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], hue=ch_df['CHY'], s=30)
 
 # plt.clf()
-ch_df['Subsector Name'].value_counts().plot.bar()
-plt.clf()
-plt.scatter(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], s=5)
-plt.clf()
+#ch_df['Subsector Name'].value_counts().plot.bar()
+#plt.clf()
+#plt.scatter(ch_df['Financial: Gross Income'], ch_df['Financial: Gross Expenditure'], s=5)
+#plt.clf()
 
-ch_df.groupby('Subsector Name')['Financial: Gross Income'].max().plot(kind='barh')
+#ch_df.groupby('Subsector Name')['Financial: Gross Income'].max().plot(kind='barh')
 
 plt.clf()
 plt.close()
@@ -263,10 +268,14 @@ top10_list=frequency_list[0:10]
 btm10_list=frequency_list[-10:]
 top10_bool=ch_df['Subsector Name'].isin(top10_list)
 top10_df=ch_df[top10_bool]
-top10_df['Subsector Name'].value_counts().plot.bar()
+#top10_df['Subsector Name'].value_counts().plot.bar()
+sns.countplot(data=top10_df, x='Subsector Name')
 plt.show()
 plt.clf()
 plt.close()
+btm10_bool=ch_df['Subsector Name'].isin(btm10_list)
+btm10_df=ch_df[btm10_bool]
+sns.countplot(data=btm10_df, x='Subsector Name')
 
 top50_df=ch_df.sort_values('Financial: Gross Income', ascending=False).iloc[0:50,:]
 top50_df['Subsector Name'].value_counts().plot.bar()
@@ -277,13 +286,13 @@ count_df=ch_df[ch_df['Financial: Gross Income'] < 2111977]
 
 # ch_df['Financial: Gross Profit']=ch_df['Financial: Gross Income'] - ch_df['Financial: Gross Expenditure']
 
-sns.scatterplot(data=ch_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', hue='SurpDef')
-plt.clf()
-plt.close()
+#sns.scatterplot(data=ch_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', hue='SurpDef')
+#p#lt.clf()
+#t.close()
 # sns.countplot(data=ch_df, x='County')
 
 sns.barplot(data=top50_df, x= 'County', y='Financial: Gross Income')
-sns.barplot(data=top50_df, x= 'Governing Form', y='Financial: Gross Income')
+sns.barplot(data=top50_df, x= 'Governing Form', y='Financial: Gross Income', rotation =90)
 
 
 ax = sns.countplot(x="County", data=ch_df)
@@ -301,3 +310,10 @@ ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha="right")  #it will rota
 
 plt.tight_layout()
 plt.show()
+
+sns.lmplot(data=ch_df, x='Financial: Gross Income', y='Financial: Gross Expenditure')
+
+plt.hist(top50_df['Financial: Gross Income'])
+
+
+sns.barplot(data=ch_df, y='Financial: Gross Income', x='Subsector Name', hue='County')
