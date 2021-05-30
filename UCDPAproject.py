@@ -45,7 +45,7 @@ arind_df=ar_df.set_index('Period End Date')
 
 # check number of nulls
 
-prind.isnull().sum()
+prind_df.isnull().sum()
 arind_df.isnull().sum()
 
 
@@ -139,18 +139,26 @@ for lab, row in ch_df.iterrows():
 
 # start investigating data
 
+sns.set_style('whitegrid')
+sns.set_palette('Paired')
+
+
 # first visualistaion - County by Number of registered charities
+#g = sns.countplot(x="County", data=ch_df, hue='CHY', hue_order=['Yes','No'])
+
 ax = sns.countplot(x="County", data=ch_df)
+
 ax.set_xticklabels(ax.get_xticklabels(), rotation=75, ha="right")
 ax.set_title('Number of Registered Charities Per County')
 ax.set_ylabel('Number of Charities')
+
 plt.tight_layout()
 plt.show()
 plt.clf()
 plt.close()
 
 # Governing Forms numbers - second visualisation
-ax= sns.countplot(x='Governing Form', data=ch_df)
+ax= sns.countplot(x='Governing Form', data=ch_df, hue='CHY', hue_order=['Yes','No'])
 ax.set_xticklabels(ax.get_xticklabels(), rotation=90, ha="right")
 ax.set_title('Charity Governing Forms - Number in each category')
 plt.tight_layout()
@@ -171,37 +179,17 @@ plt.close()
 
 
 # Scatter plot to show relationship between Gross Income and Expenditure
-sns.scatterplot(data=ch_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', hue='CHY')
-, s =15)
-plt.title('Gross Income against Gross Expenditure')
-plt.xlabel('Gross Income €10m')
-plt.ylabel('Gross Expenditure €10m')
+g=sns.relplot(kind='scatter', data=ch_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', style='CHY', hue='Number of Volunteers')
+g.fig.suptitle('Gross Income vs Gross Expenditure grouped by CHY + Num Voluteers')
+g.set(xlabel='Gross Income €10m', ylabel='Gross Expenditure €10m')    
+plt.xticks(rotation=90)
+
+#plt.title('Gross Income against Gross Expenditure')
+#plt.xlabel('Gross Income €10m')
+#plt.ylabel('Gross Expenditure €10m')
 plt.show()
 plt.clf()
 plt.close()
-
-# For closer analysis divide charities below and above median
-
-chmed=ch_df['Financial: Gross Income'].median()
-belowmedian_df=ch_df[ch_df['Financial: Gross Income'] <= chmed ]
-abovemedian_df=ch_df[ch_df['Financial: Gross Income'] > chmed]
-
-sns.scatterplot(data=abovemedian_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', hue='CHY')
-plt.title('Charity Income v Expenditure - Income above median')
-plt.legend()
-plt.ylabel('Gross Expenditure €10m')
-plt.xlabel('Gross Income €10m')
-plt.show()  
-plt.clf()
-plt.close()                    
-sns.scatterplot(data=belowmedian_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', hue='CHY')
-plt.title('Charity Income v Expenditure - Income below median')
-plt.xlabel('Gross Income €10m')
-plt.ylabel('Gross Expenditure €10m')
-plt.show()
-plt.clf()
-plt.close()
-
 
 # stripplot to look at distribution of gross income by county
 sns.stripplot(data=ch_df, x='County', y='Financial: Gross Income')
@@ -215,6 +203,7 @@ plt.close()
 
 
 # histogram to show distribution of Income
+
 plt.hist(ch_df['Financial: Gross Income'])
 plt.title('Gross Income Distribution € - All Charities')
 plt.show()
