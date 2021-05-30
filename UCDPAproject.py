@@ -10,7 +10,7 @@ import seaborn as sns
 
 # Import charity regulators data as an Excel 2 sheet spreadsheet
 
-file = "C:\\Users\\omaho\\downloads\\public-register-03052021.xlsx"
+file = "public-register-03052021.xlsx"
 charity_df = pd.ExcelFile(file)
 
 # get the sheet names
@@ -43,13 +43,21 @@ print(income_median)
 prind_df=pr_df.set_index('Registered Charity Name')
 arind_df=ar_df.set_index('Period End Date')
 
-# check number of nulls
 
-prind_df.isnull().sum()
-arind_df.isnull().sum()
+# custom function to print percent of nulls in each column
+def percent_null (df1):
+    percent=df1.isnull().sum()*100/len(df1)
+    return percent
 
-
+print(percent_null(prind_df))
+print(percent_null(arind_df))
+    
+# Drop duplicates    
+prind_df.drop_duplicates(inplace=True)  
+arind_df.drop_duplicates(inplace=True)  
+ 
 # Clean prind_df:
+   
 # replace nulls with Dictionary replacements
 dictpr = {'Primary Address': 'Not given', 'CRO Number':'Not Registered', 'CHY Number': 'Not Registered', 'Charitable Purpose': 'Not given', 'Charitable Objects': 'Not given'} 
 prind_df=prind_df.fillna(dictpr)
@@ -60,9 +68,10 @@ arind_df=arind_df.dropna(axis =1, thresh = 10000)
 print(arind_df.shape)
 
 # Drop rows with no Financial Data
-arind_df=arind_df[arind_df['Financial: Gross Income'].notna()]
-arind_df=arind_df[arind_df['Financial: Gross Expenditure'].notna()]
-
+#arind_df=arind_df[arind_df['Financial: Gross Income'].notna()]
+#arind_df=arind_df[arind_df['Financial: Gross Expenditure'].notna()]
+arind_df['Financial: Gross Income'].fillna(arind_df['Financial: Gross Income'].median(), inplace=True)
+arind_df['Financial: Gross Expenditure'].fillna(arind_df['Financial: Gross Expenditure'].median(), inplace=True)
 # In arind_df select report dates in 2019 only
 
 ar19ind_df=arind_df.loc['2019-01-01':'2019-12-31']
@@ -82,10 +91,12 @@ ar19ind_df.drop(['Report Size', 'Period Start Date', 'Report Activity', 'Activit
 
 creg_df=prind_df.merge(ar19ind_df, how = 'right', left_index=True, right_index=True)
 
+def my_func(df1):
+    print('The DataFrame has now been cleaned and has a shape: ' )
 
 # Collect extra data from Benefatcts csv
 
-filebenefacts = "C:\\Users\\omaho\\downloads\\CHARITIES20210507130928csv.csv"
+filebenefacts = "CHARITIES20210507130928.csv"
 bf_df = pd.read_csv(filebenefacts)
 
 
@@ -95,6 +106,9 @@ bfnew_df=bf_df[['Subsector Name', 'County','CRA']].copy()
 # Clean this df
 # check for nulls
 bfnew_df.isnull().sum()
+
+# Drop duplicates
+bfnew_df.drop_duplicates(inplace=True)
 
 # replace nulls with appropriate values using Dictionary
 bfdict = {'Subsector Name': 'Not available', 'County':'Not known'}
@@ -140,14 +154,13 @@ for lab, row in ch_df.iterrows():
 # start investigating data
 
 sns.set_style('whitegrid')
-sns.set_palette('Paired')
+sns.set_palette('hls',8)
 
 
 # first visualistaion - County by Number of registered charities
 #g = sns.countplot(x="County", data=ch_df, hue='CHY', hue_order=['Yes','No'])
 
 ax = sns.countplot(x="County", data=ch_df)
-
 ax.set_xticklabels(ax.get_xticklabels(), rotation=75, ha="right")
 ax.set_title('Number of Registered Charities Per County')
 ax.set_ylabel('Number of Charities')
@@ -180,13 +193,9 @@ plt.close()
 
 # Scatter plot to show relationship between Gross Income and Expenditure
 g=sns.relplot(kind='scatter', data=ch_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', style='CHY', hue='Number of Volunteers')
-g.fig.suptitle('Gross Income vs Gross Expenditure grouped by CHY + Num Voluteers')
+g.fig.suptitle('Gross Income vs Gross Expenditure grouped by CHY + Num Volunteers')
 g.set(xlabel='Gross Income €10m', ylabel='Gross Expenditure €10m')    
 plt.xticks(rotation=90)
-
-#plt.title('Gross Income against Gross Expenditure')
-#plt.xlabel('Gross Income €10m')
-#plt.ylabel('Gross Expenditure €10m')
 plt.show()
 plt.clf()
 plt.close()
@@ -203,7 +212,6 @@ plt.close()
 
 
 # histogram to show distribution of Income
-
 plt.hist(ch_df['Financial: Gross Income'])
 plt.title('Gross Income Distribution € - All Charities')
 plt.show()
@@ -211,7 +219,6 @@ plt.clf()
 plt.close()
 
 # Not a clear view - skewed by large numbers. Look at smaller sample
-
 view_df=ch_df[ch_df['Financial: Gross Income'] < 1000000]
 plt.hist(view_df['Financial: Gross Income'])
 plt.title('Gross Income Distribution - Charities earning under €1m')
