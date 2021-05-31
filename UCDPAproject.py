@@ -67,11 +67,10 @@ prind_df=prind_df.fillna(dictpr)
 arind_df=arind_df.dropna(axis =1, thresh = 10000)
 print(arind_df.shape)
 
-# Drop rows with no Financial Data
-#arind_df=arind_df[arind_df['Financial: Gross Income'].notna()]
-#arind_df=arind_df[arind_df['Financial: Gross Expenditure'].notna()]
+# Where financial numeric data is missing replace with the median value.
 arind_df['Financial: Gross Income'].fillna(arind_df['Financial: Gross Income'].median(), inplace=True)
 arind_df['Financial: Gross Expenditure'].fillna(arind_df['Financial: Gross Expenditure'].median(), inplace=True)
+
 # In arind_df select report dates in 2019 only
 
 ar19ind_df=arind_df.loc['2019-01-01':'2019-12-31']
@@ -91,8 +90,6 @@ ar19ind_df.drop(['Report Size', 'Period Start Date', 'Report Activity', 'Activit
 
 creg_df=prind_df.merge(ar19ind_df, how = 'right', left_index=True, right_index=True)
 
-def my_func(df1):
-    print('The DataFrame has now been cleaned and has a shape: ' )
 
 # Collect extra data from Benefatcts csv
 
@@ -104,8 +101,8 @@ bf_df = pd.read_csv(filebenefacts)
 bfnew_df=bf_df[['Subsector Name', 'County','CRA']].copy()
 
 # Clean this df
-# check for nulls
-bfnew_df.isnull().sum()
+# check for nulls using custom function again
+print(percent_null(bfnew_df))
 
 # Drop duplicates
 bfnew_df.drop_duplicates(inplace=True)
@@ -115,7 +112,7 @@ bfdict = {'Subsector Name': 'Not available', 'County':'Not known'}
 bfnew_df=bfnew_df.fillna(bfdict)
 
 # Delete columns with no CRA (Charity Regulator No)
-bfnew_df=bfnew_df.dropna()
+bfnew_df=bfnew_df.dropna(axis=0, subset=['CRA'])
 
 #Check datatypes for bfnew_df
 print(bfnew_df.dtypes)
@@ -229,13 +226,13 @@ plt.close()
 
 
 
-# Top 50 charities sorted by subsector
-top50_df=ch_df.sort_values('Financial: Gross Income', ascending=False).iloc[0:50,:]
-sns.countplot(data=top50_df, x='Subsector Name')
+# Top 500 charities sorted by subsector
+top500_df=ch_df.sort_values('Financial: Gross Income', ascending=False).iloc[0:500,:]
+sns.countplot(data=top500_df, x='Subsector Name')
 plt.xlabel('Subsector')
 plt.ylabel('No of charities')
 plt.xticks(rotation=90)
-plt.title('Top 50 charities by income sorted by Subsector')
+plt.title('Top 500 charities by income sorted by Subsector')
 plt.show()
 plt.clf()
 plt.close()
