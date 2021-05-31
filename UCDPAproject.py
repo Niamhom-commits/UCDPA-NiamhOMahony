@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+# Niamh OMahony Cert Data Analytics Project May 2021
 # Import charity regulators data as an Excel 2 sheet spreadsheet
 
 file = "public-register-03052021.xlsx"
@@ -154,8 +154,7 @@ sns.set_style('whitegrid')
 sns.set_palette('hls',8)
 
 
-# first visualistaion - County by Number of registered charities
-#g = sns.countplot(x="County", data=ch_df, hue='CHY', hue_order=['Yes','No'])
+# Figure 1 - County by Number of registered charities
 
 ax = sns.countplot(x="County", data=ch_df)
 ax.set_xticklabels(ax.get_xticklabels(), rotation=75, ha="right")
@@ -167,7 +166,7 @@ plt.show()
 plt.clf()
 plt.close()
 
-# Governing Forms numbers - second visualisation
+# Figure 2: Governing Forms numbers
 ax= sns.countplot(x='Governing Form', data=ch_df, hue='CHY', hue_order=['Yes','No'])
 ax.set_xticklabels(ax.get_xticklabels(), rotation=90, ha="right")
 ax.set_title('Charity Governing Forms - Number in each category')
@@ -177,7 +176,7 @@ plt.show()
 plt.clf()
 plt.close()
 
-# governing form mean income
+# Figure 3 Governing form mean income
 sns.barplot(data=ch_df, x='Governing Form', y='Financial: Gross Income')
 plt.title('Governing Form - Average Gross Income')
 plt.ylabel('Gross Income €10m')
@@ -188,7 +187,8 @@ plt.close()
 
 
 
-# Scatter plot to show relationship between Gross Income and Expenditure
+# Figure 4: Scatter plot to show relationship between Gross Income
+# and Expenditure measured with CHY status and Number of volunteers
 g=sns.relplot(kind='scatter', data=ch_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', style='CHY', hue='Number of Volunteers')
 g.fig.suptitle('Gross Income vs Gross Expenditure grouped by CHY + Num Volunteers')
 g.set(xlabel='Gross Income €10m', ylabel='Gross Expenditure €10m')    
@@ -197,7 +197,29 @@ plt.show()
 plt.clf()
 plt.close()
 
-# stripplot to look at distribution of gross income by county
+# to drill a bit deeper divide data into below and above median 
+# use remplot to look at larger and smaller separately
+
+chmed=ch_df['Financial: Gross Income'].median()
+belowmedian_df=ch_df[ch_df['Financial: Gross Income'] <= chmed ]
+abovemedian_df=ch_df[ch_df['Financial: Gross Income'] > chmed]
+#Figure 5 data above meidan
+g=sns.relplot(kind='scatter', data=abovemedian_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', style='CHY', hue='Number of Volunteers')
+g.fig.suptitle('Charity Income v Expenditure - Income above median')
+g.set(xlabel='Gross Income €10m', ylabel='Gross Expenditure €10m')
+plt.show()  
+plt.clf()
+plt.close() 
+# Figure 6 data below median with col=CHY                   
+g=sns.relplot(kind='scatter', data=belowmedian_df, x='Financial: Gross Income', y='Financial: Gross Expenditure', col= 'CHY', hue='Number of Volunteers')
+g.fig.suptitle('Charity Income v Expenditure - Income below median', y=1.03)
+g.set(xlabel='Gross Income €10m', ylabel='Gross Expenditure €10m')
+plt.show()
+plt.clf()
+plt.close()
+
+
+# Figure 7: stripplot to look at distribution of gross income by county
 sns.stripplot(data=ch_df, x='County', y='Financial: Gross Income')
 plt.title('Gross Income per charity by County')
 plt.xticks(rotation=90)
@@ -208,14 +230,15 @@ plt.close()
 
 
 
-# histogram to show distribution of Income
+# Figure 8: histogram to show distribution of Income
 plt.hist(ch_df['Financial: Gross Income'])
 plt.title('Gross Income Distribution € - All Charities')
 plt.show()
 plt.clf()
 plt.close()
 
-# Not a clear view - skewed by large numbers. Look at smaller sample
+# Not a clear view - skewed by large numbers. 
+# Figure 9 :Look at smaller sample for charity income < €1000000
 view_df=ch_df[ch_df['Financial: Gross Income'] < 1000000]
 plt.hist(view_df['Financial: Gross Income'])
 plt.title('Gross Income Distribution - Charities earning under €1m')
@@ -226,7 +249,7 @@ plt.close()
 
 
 
-# Top 500 charities sorted by subsector
+# Figure 10: Top 500 charities sorted by subsector
 top500_df=ch_df.sort_values('Financial: Gross Income', ascending=False).iloc[0:500,:]
 sns.countplot(data=top500_df, x='Subsector Name')
 plt.xlabel('Subsector')
@@ -240,7 +263,7 @@ plt.close()
 
 
 
-# Lineplot of Gross Income against Gross Expenditure showing confidence
+# Figure 11: Lineplot of Gross Income against Gross Expenditure showing confidence
 sns.lmplot(data=ch_df, x='Financial: Gross Income', y='Financial: Gross Expenditure')
 plt.title('Lineplot of Gross Income against Gross Expenditure showing confidence')
 plt.xlabel('Gross Income €10m')
